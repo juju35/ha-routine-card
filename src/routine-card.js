@@ -483,6 +483,7 @@ class RoutineCard extends RcCard {
     ha-card.bn > .banner .room { right: 34px; }
     .banner .badge .ring { color: var(--bt); }
     .banner .badge:has(.ring) { background: rgba(255,255,255,.7); }
+    .banner.night .badge:has(.ring) { background: rgba(8,10,28,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
     /* Narrower cards: the house is drawn smaller (75 %, 62 %, then 50 % of its height, its left part cropped). */
     @container (max-width: 420px) { .banner { --sw: 150px; --sk: .75; } }
     @container (max-width: 340px) { .banner { --sw: 112px; --sk: .62; } ha-card.bn > .banner .room { display: none; } ha-card.bn > .banner .head { padding-right: 34px; } }
