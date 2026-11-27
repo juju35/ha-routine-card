@@ -69,14 +69,12 @@ const rtScene = ({ night, period, fraction, done, animate, compact }) => {
       <rect x="97" y="65" width="9" height="9" fill="${lit(3)}"/></g>${sparkles}`;
 };
 
-// The status pill's place, decided by measurement after each render and each new width (the same rule on every
-// card): on the title row, right after the title, only when the whole title and the pill's whole label fit there;
-// otherwise on its own line under the subtitle. When the label is still cut there, or the text block leaves the
-// banner or runs over its ground strip, the pill keeps its dot alone, on the title row (its label stays in title and
-// aria-label). A card of 200 px or less shows the dot alone anyway (CSS), beside the title.
-const rtPlacePill = (head, row, ground) => {
+// The status pill's place, decided by measurement after each render and each new width: always on the title row,
+// right after the title (the charte keeps it beside the title, never under the subtitle). When the whole title and
+// the pill's whole label do not fit there, the pill keeps its dot alone, still on the title row (its label stays in
+// title and aria-label, and the hero below says the same). A card of 200 px or less shows the dot alone anyway (CSS).
+const rtPlacePill = (head, row) => {
   if (!head) return;
-  head.removeAttribute("data-wrap");
   head.removeAttribute("data-dot");
   const pill = row.querySelector(":scope > .bpill, :scope > .pill");
   const text = pill?.querySelector(".bpt, .pt");
@@ -85,14 +83,7 @@ const rtPlacePill = (head, row, ground) => {
   const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
   const title = name ? (name.scrollWidth > name.clientWidth ? name.scrollWidth : name.getBoundingClientRect().width) + gap : 0;
   if (title + pill.getBoundingClientRect().width <= row.getBoundingClientRect().width + 0.5) return;
-  head.setAttribute("data-wrap", "");
-  const box = row.parentElement.getBoundingClientRect();
-  const frame = head.getBoundingClientRect();
-  const out = ground && (box.bottom > ground.getBoundingClientRect().top + 0.5 || box.top < frame.top - 0.5);
-  if (text.scrollWidth > text.clientWidth + 0.5 || out) {
-    head.removeAttribute("data-wrap");
-    head.setAttribute("data-dot", "");
-  }
+  head.setAttribute("data-dot", "");
 };
 
 // A progress ring of `size` px: the fraction done, its text in the middle.
@@ -282,7 +273,7 @@ class RoutineCard extends RcCard {
   _fitPill() {
     for (const row of this.shadowRoot?.querySelectorAll?.(".trow") || []) {
       const banner = row.closest(".banner");
-      rtPlacePill(banner || row.closest(".head"), row, banner?.querySelector(".ground"));
+      rtPlacePill(banner || row.closest(".head"), row);
     }
   }
 
@@ -476,10 +467,6 @@ class RoutineCard extends RcCard {
     .banner.night .bpill { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
     .bdot { width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
     .bpt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-    [data-wrap] .trow { display: contents; }
-    [data-wrap] .trow > .bpill, [data-wrap] .trow > .pill { order: 9; align-self: flex-start; max-width: 100%; margin-top: 3px; }
-    .banner[data-wrap] .trow > .bpill { max-width: calc(100cqw - 80px); }
-    [data-wrap] .subt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     [data-dot] .bpill { padding: 0; background: none; }
     [data-dot] .bpt, [data-dot] .trow > .pill .pt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     [data-dot] .trow > .pill { padding: 0; width: 18px; height: 18px; justify-content: center; background: none; }
